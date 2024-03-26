@@ -1,0 +1,134 @@
+---
+title: "Not this normal"
+subtitle: "<font color='black'> Assessing a sample against a multivariate null distribution </font> <br> <br> <br>**Ursula Laa** <br> University of Natural Resources and Life Sciences, Vienna <br> <br> <font color='black'>work with Annalisa Calvi, German Valencia and Di Cook </font> "
+format:
+  revealjs:
+    theme: [default, 'boku.scss']
+    scrollable: true
+    slide-number: true
+    code-line-numbers: false
+    reference-location: document
+    preview-links: auto
+    logo: 'BOKU-logo.svg'
+    footer: "uschilaa.github.io/statistiktage24"
+    # embed-resources: true
+    chalkboard:
+      buttons: false
+---
+
+## Introduction
+
+<br>
+
+Linear projections are useful for the visualization of multivariate data: we can reduce dimensionality but keep interpretability in terms of the original variables.
+
+For example a **biplot** is maximizing variance in the data shown in low dimensions, and also visualizes the projection matrix.
+
+More generally **projection pursuit** defines a quantitative criterion for the *interestingness* of a projection (a **projection pursuit index**), and searches the space of possible projections for the most interesting one to display.
+
+## Introduction
+
+<br>
+
+We can also define sequences of interpolated linear projections to better understand a multivariate distribution. Animating a randomly selected interpolated sequence of linear projections is called a **grand tour**.
+
+The combination of these two approaches would then use a projection pursuit index to select interesting projections, but display them via an interpolated path to provide context. This is called a **guided tour**.
+
+## Scenario
+
+Can we use these techniques to understand new data points in the context of an established multivariate normal distribution?
+
+
+- in physics the normal distribution may describe experimental results, or a global fit for a selected model, and we might want to compare to a set of other models
+- in medical applications the normal distribution might summarize historic data of a healthy population and we compare it to samples from new patients
+- in outlier detection we might use robust measures to define the normal distribution and look for anomalies
+
+
+## Example from physics
+
+Previous approach: use a sample of points within e.g. 1 $\sigma$ of the mean to illustrate the normal distribution
+
+<p align="center">
+```{=html}
+<iframe width="780" height="500" src="https://uschilaa.github.io/animations/points/animation.html" title="Physics example"></iframe>
+```
+</p>
+
+## Projecting an ellipsoid
+
+Better approach would be to mathematically derive how the projected ellipsoid looks like, then we can also use it to define a new projection pursuit index.
+
+In $p$ dimensions the ellipsoid defined by the variance-covariance matrix $\Sigma$ is given as
+
+$$(x-\mu) \Sigma^{-1}(x-\mu)^T = c^2$$
+
+with $x$ a $(1\times p)$ vector on the surface of the ellipsoid and $c$ a constant that depends on the desired confidence level.
+
+## Projecting an ellipsoid
+
+The projection of an ellipsoid onto 2 dimensions is an ellipse, where the curve of the ellipse is defined through the set of points $x$ for which the gradient is parallel to the projection plane. We call points in the projection that are on the curve $y$.
+
+From this we can compute the analog equation for the projection as
+
+$$(y - \mu_p)(P^T \Sigma P)^{-1}(y - \mu_p)^T = c^2$$
+with $P$ a $(p\times 2)$ orthonormal basis defining the projection and $\mu_p = \mu P$ the projected mean.
+
+## Projecting an ellipsoid
+
+<br>
+
+This means the matrix $(P^T \Sigma P)^{-1}$ is defining the ellipse in the 2 dimensional projection.
+
+In general $c$ could be any constant, but typically we would select it as a quantile of the $\chi^2$ distribution, so that the size of the ellipse corresponds to a selected probability.
+
+This was implemented in the `tourr` package, where the projected ellipsoid can be drawn for each projection.
+
+## Example
+
+For demonstration we use a simulated example of the medical application:
+
+- five numeric variables are available to describe liver function
+- the "normal" patients are summarized in a mean value and variance-covariance matrix
+- the new observations are similar to this distribution, but have somewhat different mean value and variance in some variables
+
+## Projecting an ellipsoid
+
+```{r eval=FALSE, echo=TRUE}
+animate_xy(liver_f, axes = "off", ellipse=as.matrix(norm_vc), 
+           ellc = 18, ellmu = t(norm_mu))
+```
+
+XXX include gif animation
+
+## Projection pursuit index
+
+One way of defining an interesting projection would now be to maximize the average Malahanobis distance **in the projection** for a subset of points $W$.
+
+We start by defining the subset as those points with the highest Malahanobis distance in $p$ dimensions. Alternatives could be manual selection or a group of points identified via clustering.
+
+We can write the index to be maximized as
+
+$$\sum_{w \in W} (w - \mu) P (P^T\Sigma P)^{-1}P^T(w - \mu)^T$$
+
+## Projection pursuit index
+
+This was implemented as a **guided tour** in the `tourr` package. For our example:
+
+```{r eval=FALSE, echo=TRUE}
+animate_xy(liver_f, 
+           guided_anomaly_tour(anomaly_index(),
+             ellipse=as.matrix(norm_vc), 
+             ellc = 18,
+             ellmu = t(norm_mu)), 
+           start = basis_random(5, 2),
+           ellipse=as.matrix(norm_vc), 
+           ellc = 18,
+           ellmu = t(norm_mu), 
+           axes="bottomleft")
+```
+
+## Projection pursuit index
+
+XXX gif animation
+
+
