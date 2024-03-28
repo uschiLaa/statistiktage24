@@ -450,19 +450,28 @@
 <h2>Example</h2>
 <p>For demonstration we use a simulated example of the medical application:</p>
 <ul>
-<li>five numeric variables are available to describe liver function</li>
+<li>four numeric variables are available to describe liver function</li>
 <li>the “normal” patients are summarized in a mean value and variance-covariance matrix</li>
-<li>the new observations are similar to this distribution, but have somewhat different mean value and variance in some variables</li>
+<li>the new observations are similar to this distribution, but have somewhat shifted mean value, smaller variance and smaller covariance in some variables</li>
 </ul>
 </section>
+<section id="example-1" class="slide level2">
+<h2>Example</h2>
+
+<img data-src="index_files/figure-revealjs/unnamed-chunk-1-1.png" width="960" class="r-stretch"></section>
 <section id="projecting-an-ellipsoid-3" class="slide level2">
 <h2>Projecting an ellipsoid</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">animate_xy</span>(liver_f, <span class="at">axes =</span> <span class="st">"off"</span>, <span class="at">ellipse=</span><span class="fu">as.matrix</span>(norm_vc), </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">ellc =</span> <span class="dv">18</span>, <span class="at">ellmu =</span> <span class="fu">t</span>(norm_mu))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tourr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">animate_xy</span>(liver_norm, <span class="at">axes =</span> <span class="st">"bottomleft"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">ellipse=</span><span class="fu">as.matrix</span>(norm_vc), </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">ellc =</span> <span class="fu">qchisq</span>(<span class="fl">0.99</span>, <span class="dv">4</span>), <span class="at">half_range=</span><span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>XXX include gif animation</p>
-</section>
+<div class="cell">
+
+</div>
+
+<img data-src="example/liver_norm.gif" class="r-stretch quarto-figure-center"></section>
 <section id="projection-pursuit-index" class="slide level2">
 <h2>Projection pursuit index</h2>
 <p>One way of defining an interesting projection would now be to maximize the average Malahanobis distance <strong>in the projection</strong> for a subset of points <span class="math inline">\(W\)</span>.</p>
@@ -474,21 +483,34 @@
 <h2>Projection pursuit index</h2>
 <p>This was implemented as a <strong>guided tour</strong> in the <code>tourr</code> package. For our example:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">animate_xy</span>(liver_f, </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>           <span class="fu">guided_anomaly_tour</span>(<span class="fu">anomaly_index</span>(),</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">ellipse=</span><span class="fu">as.matrix</span>(norm_vc), </span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">ellc =</span> <span class="dv">18</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">ellmu =</span> <span class="fu">t</span>(norm_mu)), </span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">start =</span> <span class="fu">basis_random</span>(<span class="dv">5</span>, <span class="dv">2</span>),</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">ellipse=</span><span class="fu">as.matrix</span>(norm_vc), </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">ellc =</span> <span class="dv">18</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">ellmu =</span> <span class="fu">t</span>(norm_mu), </span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">axes=</span><span class="st">"bottomleft"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">153</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">animate_xy</span>(liver_f, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>           <span class="fu">guided_anomaly_tour</span>(<span class="fu">anomaly_index</span>(),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">ellipse=</span><span class="fu">as.matrix</span>(norm_vc), </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">ellc =</span> <span class="fu">qchisq</span>(<span class="fl">0.99</span>, <span class="dv">4</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">ellmu =</span> <span class="fu">t</span>(norm_mu)), </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">start =</span> <span class="fu">basis_random</span>(<span class="dv">4</span>, <span class="dv">2</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">ellipse=</span><span class="fu">as.matrix</span>(norm_vc), </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">ellc =</span> <span class="fu">qchisq</span>(<span class="fl">0.99</span>, <span class="dv">4</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">ellmu =</span> <span class="fu">t</span>(norm_mu), </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">axes=</span><span class="st">"bottomleft"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">half_range=</span><span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="projection-pursuit-index-2" class="slide level2">
 <h2>Projection pursuit index</h2>
-<p>XXX gif animation</p>
+<div class="cell">
+
+</div>
+<p><br></p>
+
+<img data-src="example/liver_f.gif" class="r-stretch quarto-figure-center"></section>
+<section id="next-steps" class="slide level2">
+<h2>Next steps</h2>
+<p><br></p>
+<p>For this example the setup works well: the new group is systematically shifted, and we can identify the direction of this shift.</p>
+<p>More generally, in particular thinking about outlier detection, the outlying points could differ from the normal distribution in several directions. In this case we could select a subset of outlying points for <span class="math inline">\(W\)</span>.</p>
+<p>We should be able to manually select a subset of interest, and this could be automatized using <strong>angular clustering</strong>.</p>
 
 <img src="BOKU-logo.svg" class="slide-logo r-stretch"><div class="footer footer-default">
 <p>uschilaa.github.io/statistiktage24</p>

@@ -87,18 +87,53 @@ This was implemented in the `tourr` package, where the projected ellipsoid can b
 
 For demonstration we use a simulated example of the medical application:
 
-- five numeric variables are available to describe liver function
+- four numeric variables are available to describe liver function
 - the "normal" patients are summarized in a mean value and variance-covariance matrix
-- the new observations are similar to this distribution, but have somewhat different mean value and variance in some variables
+- the new observations are similar to this distribution, but have somewhat shifted mean value, smaller variance and smaller covariance in some variables
+
+## Example
+
+```{r echo=FALSE, message=FALSE}
+library(GGally)
+library(tidyverse)
+liver_norm <- read_csv("example/liver_norm.csv")
+norm_vc <- read_csv("example/liver_norm_vc.csv")
+liver_f <- read_csv("example/liver_f.csv")
+norm_mu <- read_csv("example/liver_norm_means.csv")
+x <- rbind(liver_f, liver_norm)
+x <- data.frame(x)
+x$type <- factor(c(rep("f", 54), rep("norm", 193)))
+ggscatmat(x, columns = 1:4, color="type", alpha = 0.4) +
+  scale_color_brewer(palette = "Accent") +
+  theme_bw()
+
+```
+
 
 ## Projecting an ellipsoid
 
 ```{r eval=FALSE, echo=TRUE}
-animate_xy(liver_f, axes = "off", ellipse=as.matrix(norm_vc), 
-           ellc = 18, ellmu = t(norm_mu))
+library(tourr)
+animate_xy(liver_norm, axes = "bottomleft",
+           ellipse=as.matrix(norm_vc), 
+           ellc = qchisq(0.99, 4), half_range=6)
 ```
 
-XXX include gif animation
+```{r eval=FALSE, echo=FALSE}
+library(tourr)
+render_gif(liver_norm,
+           grand_tour(),
+           display_xy(
+             axes = "bottomleft",
+             ellipse=as.matrix(norm_vc), 
+             ellc = qchisq(0.99, 4), half_range=6),
+           gif_file="example/liver_norm.gif",
+           width=400,
+           height=400,
+           frames=500)
+```
+
+![](example/liver_norm.gif){fig-align="center"}
 
 ## Projection pursuit index
 
@@ -115,20 +150,51 @@ $$\sum_{w \in W} (w - \mu) P (P^T\Sigma P)^{-1}P^T(w - \mu)^T$$
 This was implemented as a **guided tour** in the `tourr` package. For our example:
 
 ```{r eval=FALSE, echo=TRUE}
+set.seed(153)
 animate_xy(liver_f, 
            guided_anomaly_tour(anomaly_index(),
              ellipse=as.matrix(norm_vc), 
-             ellc = 18,
+             ellc = qchisq(0.99, 4),
              ellmu = t(norm_mu)), 
-           start = basis_random(5, 2),
+           start = basis_random(4, 2),
            ellipse=as.matrix(norm_vc), 
-           ellc = 18,
+           ellc = qchisq(0.99, 4),
            ellmu = t(norm_mu), 
-           axes="bottomleft")
+           axes="bottomleft",
+           half_range=6)
 ```
 
 ## Projection pursuit index
 
-XXX gif animation
+```{r eval=FALSE, echo=FALSE}
+set.seed(153)
+render_gif(liver_f,
+           guided_anomaly_tour(anomaly_index(),
+             ellipse=as.matrix(norm_vc), 
+             ellc = qchisq(0.99, 4),
+             ellmu = t(norm_mu)), 
+           start = basis_random(4, 2),
+           display_xy(
+             axes = "bottomleft",
+             ellipse=as.matrix(norm_vc), ellmu = t(norm_mu),
+             ellc = qchisq(0.99, 4), half_range=6),
+           gif_file="example/liver_f.gif",
+           width=400,
+           height=400,
+           frames=500,
+           loop = FALSE)
+```
 
+<br>
 
+![](example/liver_f.gif){fig-align="center"}
+
+## Next steps
+
+<br>
+
+For this example the setup works well: the new group is systematically shifted, and we can identify the direction of this shift.
+
+More generally, in particular thinking about outlier detection, the outlying points could differ from the normal distribution in several directions. In this case we could select a subset of outlying points for $W$.
+
+We should be able to manually select a subset of interest, and this could be automatized using **angular clustering**.
