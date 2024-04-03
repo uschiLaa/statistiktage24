@@ -9,7 +9,7 @@ format:
     code-line-numbers: false
     reference-location: document
     preview-links: auto
-    logo: 'BOKU-logo.svg'
+    logo: 'BOKU_2024.png'
     footer: "uschilaa.github.io/statistiktage24"
     # embed-resources: true
     chalkboard:
